@@ -1,0 +1,16 @@
+*jar
+/lib
+/classes
+/native
+/.lein-failures
+/checkouts
+/.lein-deps-sum
+/logs
+/target
+.project
+/bin
+.classpath
+/.settings
+.DS_Store
+/.DS_Store
+*log
