@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * 一个简单的reactor模型
@@ -43,8 +45,28 @@ public class Reactor implements Runnable {
         log("-->attach(new Acceptor()!)");
     }
     
+    /**
+     * normally in a new thread
+     */
     public void run() {
-
+        try {
+            while(!Thread.interrupted()) {
+                    selector.select();
+                Set<SelectionKey> selected = selector.keys();
+                Iterator<SelectionKey> iterator = selected.iterator();
+                //Selector 如果发现channel有OP_ACCEPT或READ事件发生，下列遍历就会进行
+                while (iterator.hasNext()) {
+                    dispatch(iterator.next());
+                }
+                selected.clear();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void dispatch(SelectionKey next) {
+        
     }
 
 }
