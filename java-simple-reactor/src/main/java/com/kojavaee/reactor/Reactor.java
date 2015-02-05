@@ -8,6 +8,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.security.auth.kerberos.KerberosKey;
+
 /**
  * 一个简单的reactor模型
  * 
@@ -40,7 +42,7 @@ public class Reactor implements Runnable {
         log("-->Start serverSocket.register!");
         
         //利用sk的attache功能绑定Acceptor 如果有消息，就激活Acceptor
-        selectionKey.attach(new Acceptor(serverSocket));
+        selectionKey.attach(new Acceptor(serverSocket,selector));
         
         log("-->attach(new Acceptor()!)");
     }
@@ -65,8 +67,17 @@ public class Reactor implements Runnable {
         }
     }
     
-    private void dispatch(SelectionKey next) {
-        
+    /**
+     * 巧妙的利用SocketChannel的attach功能，将handler和可能会发生事件的channel链接在一起，
+     * 当发生事件时，可以立即触发相应链接的handler
+     * 
+     * @param key SelectionKey
+     */
+    private void dispatch(SelectionKey key) {
+        Runnable runnable = (Runnable)key.attachment();
+        if(runnable != null) {
+            runnable.run();
+        }
     }
 
 }
